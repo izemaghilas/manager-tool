@@ -1,12 +1,15 @@
-.PHONY: start stop
+.PHONY: up down
 
-start:
+up:
 	docker compose --env-file=".env.local" up -d
+
+down:
+	docker compose --env-file=".env.local" down
+
+restart: down up
 
 stop:
 	docker compose --env-file=".env.local" stop
 
-restart: stop start
-
-down:
-	docker compose --env-file=".env.local" down
+start:
+	docker compose --env-file=".env.local" start
