@@ -20,13 +20,24 @@ class TeamMemberControllerTest extends WebTestCase
         $this->client = static::createClient();
     }
 
-    public function testTeamMembersPage(): void
+    public function testShowTeamMembers(): void
     {
         $crawler = $this->client->request('GET', self::TEAM_MEMBERS_URL);
+
+        $teamMembers = $crawler->filter('body > div')->children();
+        $firstTeamMember = $teamMembers->eq(0)->children();
+        $secondTeamMember = $teamMembers->eq(1)->children();
         
-        $this->assertResponseIsSuccessful();
-        $this->assertPageTitleSame('Team Members');
-        $this->assertCount(1, $crawler->filter('a'));
+        $this->assertSame('Aghilas', $firstTeamMember->eq(0)->text());
+        $this->assertSame('IZEM', $firstTeamMember->eq(1)->text());
+        $this->assertSame('izemaghilas@gmail.com', $firstTeamMember->eq(2)->text());
+        $this->assertSame('2000-10-25', $firstTeamMember->eq(3)->text());
+        
+        $this->assertSame('Afulay', $secondTeamMember->eq(0)->text());
+        $this->assertSame('AMEKSA', $secondTeamMember->eq(1)->text());
+        $this->assertSame('ameksaafulay@gmail.com', $secondTeamMember->eq(2)->text());
+        $this->assertSame('2010-01-05', $secondTeamMember->eq(3)->text());
+        
     }
 
     public function testLinkToTeamMemberHirePage(): void
@@ -41,17 +52,29 @@ class TeamMemberControllerTest extends WebTestCase
 
     public function testHireNewTeamMemberWithValidData(): void
     {
+        $firstName = $this->faker->firstName();
+        $lastName = $this->faker->lastName();
+        $email = $this->faker->email();
+        $birthDate = $this->faker->date();
+
         $this->client->request('GET', self::TEAM_MEMBERS_URL.'/hire');
         $this->client->submitForm('Hire', [
-            'team_member[firstName]' => $this->faker->firstName(),
-            'team_member[lastName]' => $this->faker->lastName(),
-            'team_member[email]' => $this->faker->email(),
-            'team_member[birthDate]' => $this->faker->date('Y-m-d')
+            'team_member[firstName]' => $firstName,
+            'team_member[lastName]' => $lastName,
+            'team_member[email]' => $email,
+            'team_member[birthDate]' => $birthDate
         ]);
 
         $this->assertResponseRedirects(self::TEAM_MEMBERS_URL);
-        // $this->client->followRedirect();
-        // assert team member was successfully created 
+        
+        $crawler = $this->client->followRedirect();
+        $teamMembers = $crawler->filter('body > div')->children();
+        $newTeamMember = $teamMembers->eq(2)->children();
+
+        $this->assertSame($firstName, $newTeamMember->eq(0)->text());
+        $this->assertSame($lastName, $newTeamMember->eq(1)->text());
+        $this->assertSame($email, $newTeamMember->eq(2)->text());
+        $this->assertSame($birthDate, $newTeamMember->eq(3)->text());
     }
 
     public function testHireNewTeamMemberFailedDueToNoFirstName(): void
@@ -60,7 +83,7 @@ class TeamMemberControllerTest extends WebTestCase
         $this->client->submitForm('Hire', [
             'team_member[lastName]' => $this->faker->lastName(),
             'team_member[email]' => $this->faker->email(),
-            'team_member[birthDate]' => $this->faker->date('Y-m-d')
+            'team_member[birthDate]' => $this->faker->date()
         ]); 
         
         $this->assertResponseIsUnprocessable();
@@ -73,7 +96,7 @@ class TeamMemberControllerTest extends WebTestCase
         $this->client->submitForm('Hire', [
             'team_member[firstName]' => $this->faker->firstName(),
             'team_member[email]' => $this->faker->email(),
-            'team_member[birthDate]' => $this->faker->date('Y-m-d')
+            'team_member[birthDate]' => $this->faker->date()
         ]);
         
         $this->assertResponseIsUnprocessable();
@@ -86,7 +109,7 @@ class TeamMemberControllerTest extends WebTestCase
         $this->client->submitForm('Hire', [
             'team_member[firstName]' => $this->faker->firstName(),
             'team_member[lastName]' => $this->faker->lastName(),
-            'team_member[birthDate]' => $this->faker->date('Y-m-d')
+            'team_member[birthDate]' => $this->faker->date()
         ]);
 
         $this->assertResponseIsUnprocessable();
@@ -100,7 +123,7 @@ class TeamMemberControllerTest extends WebTestCase
             'team_member[firstName]' => $this->faker->firstName(),
             'team_member[lastName]' => $this->faker->lastName(),
             'team_member[email]' => 'dsdsd@fkl',
-            'team_member[birthDate]' => $this->faker->date('Y-m-d')
+            'team_member[birthDate]' => $this->faker->date()
         ]);
         
         $this->assertResponseIsUnprocessable();
