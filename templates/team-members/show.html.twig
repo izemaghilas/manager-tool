@@ -1,0 +1,17 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Team Members{% endblock title %}
+
+{% block body %}
+    <div>
+        {% for teamMember in teamMembers %}
+            <div>
+                <span>{{ teamMember.firstName }}</span>
+                <span>{{ teamMember.lastName }}</span>
+                <span>{{ teamMember.email }}</span>
+                <span>{{ teamMember.birthDate|date("Y-m-d") }}</span>
+            </div>
+        {% endfor %}
+    </div>
+    <a class="hire-btn" href="{{ path('team_members_hire') }}">Hire</a>
+{% endblock body %}

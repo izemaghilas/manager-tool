@@ -13,9 +13,12 @@ use Symfony\Component\Routing\Annotation\Route;
 class TeamMemberController extends AbstractController
 {
     #[Route('/team-members', name: 'team_members', methods: ['GET'])]
-    public function index(): Response
-    {
-        return $this->render('team-members/index.html.twig');
+    public function show(ManagerRegistry $doctrine): Response
+    {   
+        $teamMembers = $doctrine->getRepository(TeamMember::class)->findAll();
+        return $this->render('team-members/show.html.twig', [
+            'teamMembers' => $teamMembers
+        ]);
     }
 
     #[Route('/team-members/hire', name: 'team_members_hire', methods: ['GET', 'POST'])]
