@@ -156,4 +156,45 @@ class TeamMemberControllerTest extends WebTestCase
         $this->assertResponseIsUnprocessable();
         $this->assertSelectorTextContains('li', 'Invalid birth date.');
     }
+
+    public function testDeleteTeamMemberSuccessful(): void
+    {
+        $this->client->request('GET', self::TEAM_MEMBERS_URL);
+        $this->client->clickLink('delete');
+
+        $this->assertResponseRedirects(self::TEAM_MEMBERS_URL);
+        
+        $crawler = $this->client->followRedirect();
+        $teamMembers = $crawler->filter('body > div')->children();
+        $firstTeamMember = $teamMembers->eq(0)->children();
+
+        $this->assertCount(1, $teamMembers);
+        $this->assertSame('Afulay', $firstTeamMember->eq(0)->text());
+        $this->assertSame('AMEKSA', $firstTeamMember->eq(1)->text());
+        $this->assertSame('ameksaafulay@gmail.com', $firstTeamMember->eq(2)->text());
+        $this->assertSame('2010-01-05', $firstTeamMember->eq(3)->text());
+    }
+    
+    public function testDeleteTeamMemberNotOnDataBase(): void
+    {
+        $this->client->request('GET', self::TEAM_MEMBERS_URL.'/12/delete');
+
+        $this->assertResponseRedirects('/team-members');
+
+        $crawler = $this->client->followRedirect();
+        $teamMembers = $crawler->filter('body > div')->children();
+        $firstTeamMember = $teamMembers->eq(0)->children();
+        $secondTeamMember = $teamMembers->eq(1)->children();
+
+        $this->assertCount(2, $teamMembers);
+        $this->assertSame('Aghilas', $firstTeamMember->eq(0)->text());
+        $this->assertSame('IZEM', $firstTeamMember->eq(1)->text());
+        $this->assertSame('izemaghilas@gmail.com', $firstTeamMember->eq(2)->text());
+        $this->assertSame('2000-10-25', $firstTeamMember->eq(3)->text());
+        
+        $this->assertSame('Afulay', $secondTeamMember->eq(0)->text());
+        $this->assertSame('AMEKSA', $secondTeamMember->eq(1)->text());
+        $this->assertSame('ameksaafulay@gmail.com', $secondTeamMember->eq(2)->text());
+        $this->assertSame('2010-01-05', $secondTeamMember->eq(3)->text());
+    }
 }
