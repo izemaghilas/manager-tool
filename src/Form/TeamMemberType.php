@@ -44,7 +44,7 @@ class TeamMemberType extends AbstractType
                 'invalid_message' => self::INVALID_BIRTH_DATE_MESSAGE,
                 'widget' => 'single_text'
             ])
-            ->add('Hire', SubmitType::class)
+            ->add($options['submit_button_label'], SubmitType::class)
         ;
     }
 
@@ -52,6 +52,7 @@ class TeamMemberType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => TeamMember::class,
+            'submit_button_label' => 'Submit'
         ]);
     }
 }
