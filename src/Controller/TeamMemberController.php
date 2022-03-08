@@ -41,4 +41,17 @@ class TeamMemberController extends AbstractController
             'form'=>$form
         ]);
     }
+
+    #[Route('/team-members/{id}/delete', name: 'team_members_delete', methods: ['GET'])]
+    public function delete(int $id, ManagerRegistry $doctrine): Response
+    {   
+        $entityManager = $doctrine->getManager();
+        $teamMember = $doctrine->getRepository(TeamMember::class)->find($id);
+        if(isset($teamMember)){
+            $entityManager->remove($teamMember);
+            $entityManager->flush();
+        }
+
+        return $this->redirectToRoute('team_members');
+    }
 }

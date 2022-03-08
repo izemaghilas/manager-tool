@@ -10,6 +10,7 @@
                 <span>{{ teamMember.lastName }}</span>
                 <span>{{ teamMember.email }}</span>
                 <span>{{ teamMember.birthDate|date("Y-m-d") }}</span>
+                <a href="{{ path('team_members_delete', {id: teamMember.id}) }}">delete</a>
             </div>
         {% endfor %}
     </div>
